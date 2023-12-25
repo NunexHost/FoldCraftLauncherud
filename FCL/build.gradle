@@ -42,12 +42,6 @@ android {
     }
 }
 
-tasks.whenTaskAdded { Task task ->
-    if (task.name.contentEquals("assembleRelease")) {
-        task.dependsOn(uploadMap)
-    }
-}
-
 tasks.register('updateMap') {
     doLast {
         def list = []
@@ -74,17 +68,6 @@ tasks.register('updateMap') {
     }
 }
 
-task uploadMap(dependsOn:'updateMap') {
-    doLast {
-        ssh.run {
-            session(remotes.debugServer) {
-                File file = file "${rootDir}/version_map.json"
-                put from: file.getAbsolutePath(), into: "/www/wwwroot/FCLApi/public/files"
-            }
-        }
-    }
-}
-
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(path: ':FCLCore')
@@ -96,7 +79,7 @@ dependencies {
     implementation 'com.github.steveice10:opennbt:1.5'
     implementation 'com.google.code.gson:gson:2.10.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
@@ -105,15 +88,5 @@ dependencies {
 
 ssh.settings {
     knownHosts = allowAnyHosts
-}
 
-remotes {
-    Properties prop = new Properties()
-    prop.load(new FileInputStream("${rootDir}/local.properties"))
-    debugServer {
-        host = prop.getProperty("sftp.host")
-        port = prop.getProperty("sftp.port").toInteger()
-        user = prop.getProperty("sftp.username")
-        password = prop.getProperty("sftp.password")
-    }
 }
